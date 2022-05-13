@@ -18,7 +18,6 @@ On enabling "Tournament of Teams":
 > * Tournaments Report
 > * Participants Report
 
-
 2. The user who enabled “Tournament of Teams” is added to “TOT Admins” list by default. Additional admins can be added directly to the list. 
 
 3. Sample actions, tournaments and tournament badges are added by default.  
@@ -41,7 +40,7 @@ Below are the master lists in SharePoint that need to be managed by the TOT Admi
 
 - Created Tournaments are not started by default. Admin can start the tournament from "Manage Tournaments" screen.
 
-![Quick Start Guide](../Images/CreateTournament.png) 
+    ![Quick Start Guide](../Images/CreateTournament.png) 
 
 
 ### Manage Tournaments 
@@ -50,7 +49,7 @@ Below are the master lists in SharePoint that need to be managed by the TOT Admi
 
  - Multiple tournaments can be active at a time. 
 
-![Quick Start Guide](../Images/ManageTournament.png) 
+    ![Quick Start Guide](../Images/ManageTournament.png) 
 
 
 ### My Dashboard
@@ -65,7 +64,7 @@ Below are the master lists in SharePoint that need to be managed by the TOT Admi
 
 - The users must complete at least one action to be considered as a participant in that tournament. The ranks are calculated only among the participants. 
 
-![Quick Start Guide](../Images/MyDashboard.png) 
+    ![Quick Start Guide](../Images/MyDashboard.png) 
 
 
 ### Leaderboard
@@ -73,12 +72,12 @@ Below are the master lists in SharePoint that need to be managed by the TOT Admi
 - Leader board is available to everyone. It shows the list of all participants in the selected active tournament along with their points and ranks. 
 - By default, the first tournament in the "My Tournaments" will be selected. If the user has not participated in any of the tournaments yet, first tournament in the "Active Tournaments" will be selected.
 
-![Quick Start Guide](../Images/TOTLeaderBoard.png) 
+    ![Quick Start Guide](../Images/TOTLeaderBoard.png) 
 
 
-### Digital Badge ![Champion logo](../Images/Champion_small.png)
+### Digital Badge
+
 Digital Badge is intended to allow tournament users to apply a digital badge on their profile image. It provides an easy and seamless process to share the recognition as a champion with the team.
- <br/>
 
 ![Quick Start Guide](../Images/Digitalbadge.png) 
 
@@ -86,16 +85,13 @@ TOT administrators can upload digital badges and tag it with a specific tourname
 
 ![Quick Start Guide](../Images/MultipleBadges.png) 
 
-<br></br>
-
 ![Quick Start Guide](../Images/ManageBadges.png) 
-
 
 
 ### Tournaments Report
 
 - Tournaments Report is available only to admins under "Admin Tools" section.
 - Report feature is available only for completed tournaments.
-- A report can be generated for "All Tournaments" or a particular tournament.
+- A report can be viewed for "All Tournaments" or a particular tournament.
 
 ![Quick Start Guide](../Images/TOTReports.png) 
