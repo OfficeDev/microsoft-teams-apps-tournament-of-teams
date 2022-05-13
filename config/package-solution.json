@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "tournamentofteams",
+    "id": "3d3e953b-57ef-4693-a25b-d5e814cb950a",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.13.0"
+    },
+    "webApiPermissionRequests": [
+      {
+         "resource": "Microsoft Graph",
+         "scope": "User.ReadWrite"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/tot.sppkg"
+  }
+}

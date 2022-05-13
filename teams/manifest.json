@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.11/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.11",
+  "packageName": "TotHomeWebPart",
+  "id": "c4d6ab66-a9e0-47d8-b049-1151b1d0949d",
+  "version": "1.0.0.0",
+  "developer": {
+    "name": "Teams Customer Advocacy Group",
+    "websiteUrl": "https://products.office.com/en-us/sharepoint/collaboration",
+    "privacyUrl": "https://privacy.microsoft.com/en-us/privacystatement",
+    "termsOfUseUrl": "https://www.microsoft.com/en-us/servicesagreement",
+    "mpnId": "CA01101011"
+  },
+  "name": {
+    "short": "Tournament of Teams"
+  },
+  "description": {
+    "short": "Tournament of Teams",
+    "full": "Get started managing and empowering your organization Champions with the Tournament of Teams. Give feedback at https://aka.ms/AdoptionFeedback and visit the larger community at https://aka.ms/m365champions."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#004578",
+  "configurableTabs": [{
+    "configurationUrl": "https://{teamSiteDomain}{teamSitePath}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest={teamSitePath}/_layouts/15/teamshostedapp.aspx%3FopenPropertyPane=true%26teams%26componentId=c4d6ab66-a9e0-47d8-b049-1151b1d0949d%26forceLocale={locale}",
+    "canUpdateConfiguration": true,
+    "scopes": [
+      "team"
+    ]
+  }],
+  "staticTabs": [{
+    "entityId": "Tournament of Teams",
+    "name": "Tournament of Teams",
+    "contentUrl": "https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/teamshostedapp.aspx%3Fteams%26personal%26componentId=c4d6ab66-a9e0-47d8-b049-1151b1d0949d%26forceLocale={locale}",
+    "scopes": ["personal"]
+  }],
+  "validDomains": [
+    "*.login.microsoftonline.com",
+    "*.sharepoint.com",
+    "*.sharepoint-df.com",
+    "spoppe-a.akamaihd.net",
+    "spoprod-a.akamaihd.net",
+    "resourceseng.blob.core.windows.net",
+    "msft.spoppe.com"
+  ],
+  "webApplicationInfo": {
+    "resource": "https://{teamSiteDomain}",
+    "id": "00000003-0000-0ff1-ce00-000000000000"
+  }
+}
