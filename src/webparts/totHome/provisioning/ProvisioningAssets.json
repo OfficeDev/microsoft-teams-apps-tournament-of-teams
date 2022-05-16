@@ -501,20 +501,6 @@
                     "value": "Tournament Name"
                 }
             ]
-        },
-        {
-            "listName": "Top Participants",
-            "listTemplate": "100",
-            "fields": [
-                "<Field DisplayName='Points' InternalName='Points' StaticName='Points' Type='Number' Required='FALSE' Name='Points' Viewable='TRUE' Indexed='TRUE' />"                
-            ],
-            "renameColumns": [
-                {
-                    "key": "Title",
-                    "value": "User Name"
-                }
-            ]
-        }
-        
+        }        
     ]
 }

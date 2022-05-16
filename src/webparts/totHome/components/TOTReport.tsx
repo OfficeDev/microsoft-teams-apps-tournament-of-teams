@@ -17,6 +17,8 @@ import {
     IComboBox,
     IComboBoxOption,
     Icon,
+    Spinner,
+    SpinnerSize,
     TooltipHost
 } from '@fluentui/react';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
@@ -49,6 +51,7 @@ export interface ITOTReportState {
     topTournamentsChartdata: Chart.ChartData;
     participantsStatusChartdata: Chart.ChartData;
     csvFileName: string;
+    showSpinner: boolean;
 }
 
 export default class TOTReport extends React.Component<ITOTReportProps, ITOTReportState> {
@@ -67,7 +70,8 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
             topParticipantsChartdata: {},
             topTournamentsChartdata: {},
             participantsStatusChartdata: {},
-            csvFileName: ""
+            csvFileName: "",
+            showSpinner: false
 
         };
 
@@ -201,7 +205,7 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
                 let participantsData: any = [];
                 let filter: string = "Title eq '" + this.state.selectedTournament.trim().replace(/'/g, "''") + "'";
                 const allItems: any[] = await commonServiceManager.getItemsSortedWithFilter(
-                    stringsConstants.ParticipantsReportList, filter,stringsConstants.PointsColumn);
+                    stringsConstants.ParticipantsReportList, filter, stringsConstants.PointsColumn);
                 if (allItems.length > 0) {
                     for (let i = 0; i < allItems.length; i++) {
                         participantsData.push({
@@ -233,14 +237,24 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
         }
     }
 
-    //Get data from "Participants Report" List and update Top 5 participant in "Top Participants" List.
-    private async updateTopParticipants(): Promise<any> {
-
+    
+    //Load Top Participants based on points
+    private async loadTopParticipants(): Promise<Chart.ChartData> {
         try {
-            let allParticipantsArray: any = [];
-            let topParticipantsArray: any = [];
+
+            let arrLabels: string[] = [];
+            let arrData: number[] = [];
+            let topParticipants: any[] = [];
 
             if (this.state.selectedTournament == stringsConstants.AllLabel) {
+                let allParticipantsArray: any = [];
+                let topParticipantsArray: any = [];
+
+                //Setting state variable to show the loading spinner
+                this.setState({
+                    showSpinner: true
+                });
+
                 //Get first batch of items from Participants Report list
                 let participantsArray = await commonServiceManager.getAllListItemsPaged(stringsConstants.ParticipantsReportList);
                 if (participantsArray.results.length > 0) {
@@ -277,44 +291,8 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
                 let top5ParticipantsArray = topParticipantsArray.filter((item, idx) => idx < 5).map(item => { return item; });
 
                 if (top5ParticipantsArray.length > 0) {
-                    //Clear the Top Participants list  
-                    await commonServiceManager.deleteListItems(stringsConstants.TopParticipantsList);
-                    top5ParticipantsArray.forEach(async (topParticipant) => {
-                        //Add Top 5 participants to Top Participants List
-                        await commonServiceManager.createListItem(stringsConstants.TopParticipantsList, topParticipant).then(() => {
-                            //Refresh the Top 5 participants chart with latest data
-                            this.loadTopParticipants();
-                        });
-                    });
-                }
-
-            }
-        }
-        catch (error) {
-            console.error("TOT_TOTReport_updateTopParticipants \n", error);
-        }
-    }
-
-    //Load Top Participants based on points
-    private async loadTopParticipants(): Promise<Chart.ChartData> {
-        try {
-
-            let arrLabels: string[] = [];
-            let arrData: number[] = [];
-            let topParticipants: any[] = [];
-
-            if (this.state.selectedTournament == stringsConstants.AllLabel) {
-                let columns = stringsConstants.TitleColumn + "," + stringsConstants.PointsColumn;
-                let descColumn = stringsConstants.PointsColumn;
-                let ascColumn = stringsConstants.TitleColumn;
-
-                topParticipants =
-                    await commonServiceManager.getTopSortedItemsWithSpecificColumns(stringsConstants.TopParticipantsList,
-                        columns, 5, descColumn, ascColumn);
-
-                if (topParticipants.length > 0) {
                     //Loop through top tournaments and add the lables and data for the chart display
-                    topParticipants.forEach(element => {
+                    top5ParticipantsArray.forEach(element => {
                         arrLabels.push(element.Title);
                         arrData.push(element.Points);
                     });
@@ -338,7 +316,6 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
                         arrData.push(element.Points);
                     });
                 }
-
             }
 
             this.setState({
@@ -351,6 +328,7 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
                         fill: false
                     }]
                 },
+                showSpinner: false,
             });
             //Resetting the state to render the chart data with current state value
             setTimeout(() => {
@@ -524,7 +502,10 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
     private setSelectedTournament = (ev: React.FormEvent<IComboBox>, option?: IComboBoxOption): void => {
         this.setState({
             selectedTournament: option.key,
-            csvFileName: option.text
+            csvFileName: option.text,
+            topParticipantsChartdata: {},
+            topTournamentsChartdata: {},
+            participantsStatusChartdata: {}
         });
     }
 
@@ -681,31 +662,24 @@ export default class TOTReport extends React.Component<ITOTReportProps, ITOTRepo
                                 <Row xl={3} lg={2} md={2} sm={1} xs={1}>
                                     <Col xl={4} lg={6} md={6} sm={12} xs={12}>
                                         <div className={styles.chartArea}>
+                                            <span className={styles.chartHeading}>{LocaleStrings.Top5ParticipantswithPointsLabel}</span>
                                             <span>
-                                                <span className={styles.chartHeading}>{LocaleStrings.Top5ParticipantswithPointsLabel}</span>
-                                                {this.state.selectedTournament == stringsConstants.AllLabel && (
-                                                    <div className={styles.refreshIconArea}>
-                                                        <TooltipHost
-                                                            content={LocaleStrings.RefreshIconInfoText}
-                                                            delay={2}
-                                                            directionalHint={DirectionalHint.leftCenter}
-                                                        >
-                                                            <Icon
-                                                                aria-label="refresh"
-                                                                iconName="refresh"
-                                                                onClick={this.updateTopParticipants.bind(this)}
-                                                                className={styles.refreshIcon}
-                                                            />
-                                                        </TooltipHost>
-                                                    </div>
+                                                {this.state.showSpinner && (
+                                                    <Spinner
+                                                        size={SpinnerSize.large}
+                                                        ariaLabel={LocaleStrings.LoadingSpinnerLabel}
+                                                        label={LocaleStrings.LoadingSpinnerLabel}
+                                                        ariaLive="assertive"
+                                                    />
                                                 )}
                                             </span>
-                                            <ChartControl
-                                                type={ChartType.HorizontalBar}
-                                                data={this.state.topParticipantsChartdata}
-                                                options={this.horizontalChartOptions}
-                                                accessibility={{ enable: true, alternateText: `${LocaleStrings.Top5ParticipantswithPointsLabel} chart` }}
-                                            />
+                                                <ChartControl
+                                                    type={ChartType.HorizontalBar}
+                                                    data={this.state.topParticipantsChartdata}
+                                                    options={this.horizontalChartOptions}
+                                                    accessibility={{ enable: true, alternateText: `${LocaleStrings.Top5ParticipantswithPointsLabel} chart` }}
+                                                />
+                                            
                                         </div>
                                     </Col>
                                     <Col xl={4} lg={6} md={6} sm={12} xs={12}>

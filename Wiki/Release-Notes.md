@@ -14,10 +14,10 @@ Below are the features released with this version,
 
 Admin modules
 - Allow users to create new tournaments
-- Allow users to manage multiple tournaments
+- Allow users to start and end tournaments
 - Allow users to view the metrics through tournaments report feature
 
 Non-Admin modules
-- Leader Board
-- My Dashboard
-- Digital Badge
+- Allows users to particpate in tournaments
+- Allows users to view a dashboard of all tournaments details
+- Allows users to apply digital badges on their profile pictures
