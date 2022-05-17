@@ -73,7 +73,7 @@
     "@types/react-dom": "16.8.3",
     "@types/rx-lite": "^4.0.6",
     "@types/webpack-env": "1.13.1",
-    "ajv": "~5.2.2",
+    "ajv": "~6.12.3",
     "gulp": "~4.0.2",
     "url-loader": "^4.1.1"
   }
