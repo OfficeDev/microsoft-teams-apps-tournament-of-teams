@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "c4d6ab66-a9e0-47d8-b049-1151b1d0949d",
+  "alias": "TotHomeWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+    "group": { "default": "Other" },
+    "title": { "default": "Tournament of Teams" },
+    "description": { "default": "Tournament of Teams Webpart" },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "description": "Tournament of Teams"
+    }
+  }]
+}
