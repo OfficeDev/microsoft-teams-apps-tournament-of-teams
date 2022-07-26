@@ -22,7 +22,10 @@
       "./node_modules/@microsoft"
     ],
     "types": [
-      "webpack-env"
+      "es6-promise",
+      "webpack-env",
+      "jest",
+      "@types/jest"
     ],
     "lib": [
       "es5",

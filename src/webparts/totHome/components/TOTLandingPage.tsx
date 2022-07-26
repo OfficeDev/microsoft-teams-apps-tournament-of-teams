@@ -1,25 +1,24 @@
-import * as React from "react";
-import { sp } from "@pnp/sp";
-import "@pnp/sp/webs";
-import "@pnp/sp/lists";
-import "@pnp/sp/items";
 import { Label } from "@fluentui/react/lib/Label";
+import { sp } from "@pnp/sp";
+import "@pnp/sp/items";
+import "@pnp/sp/lists";
+import "@pnp/sp/webs";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { ThemeStyle } from "msteams-ui-styles-core";
+import * as React from "react";
+import Col from "react-bootstrap/Col";
 import Media from "react-bootstrap/Media";
 import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import "bootstrap/dist/css/bootstrap.min.css";
-import styles from "../scss/TOTLandingPage.module.scss";
-import siteconfig from "../provisioning/ProvisioningAssets.json";
+import * as LocaleStrings from 'TotHomeWebPartStrings';
 import commonServices from "../common/CommonServices";
 import * as stringsConstants from "../constants/strings";
-import TOTLeaderBoard from "./TOTLeaderBoard";
-import TOTMyDashboard from "./TOTMyDashboard";
+import siteconfig from "../provisioning/ProvisioningAssets.json";
+import styles from "../scss/TOTLandingPage.module.scss";
+import DigitalBadge from "./DigitalBadge";
 import TOTCreateTournament from "./TOTCreateTournament";
 import TOTEnableTournament from "./TOTEnableTournament";
-import Navbar from "react-bootstrap/Navbar";
-import * as LocaleStrings from 'TotHomeWebPartStrings';
-import DigitalBadge from "./DigitalBadge";
-import { ThemeStyle } from "msteams-ui-styles-core";
+import TOTLeaderBoard from "./TOTLeaderBoard";
+import TOTMyDashboard from "./TOTMyDashboard";
 import TOTReport from "./TOTReport";
 
 export interface ITOTLandingPageProps {
@@ -68,11 +67,11 @@ class TOTLandingPage extends React.Component<
       tournamentReport: false,
     };
     commonService = new commonServices(this.props.context, this.props.siteUrl);
-    this.redirectTotHome = this.redirectTotHome.bind(this);
   }
   public componentDidMount() {
     this.initialChecks();
   }
+
   //verify isTOTEnabled props, if already enabled then check admin role and active tournaments
   private async initialChecks() {
     try {
@@ -126,17 +125,6 @@ class TOTLandingPage extends React.Component<
     }
   }
 
-  //Onclick of header Redirect to TOT landing page
-  public redirectTotHome() {
-    this.setState({
-      leaderBoard: false,
-      createTournament: false,
-      manageTournament: false,
-      dashboard: false,
-      digitalBadge: false,
-    });
-  }
-
   //Create tournament name look up field in Digital badge assets lib
   private async createLookupField() {
     const listStructure: any = siteconfig.libraries;
@@ -144,96 +132,110 @@ class TOTLandingPage extends React.Component<
     await sp.web.lists.getByTitle(stringsConstants.TournamentsMasterList).get()
       .then(async (resp) => {
         if (resp.Title != undefined) {
-          let digitalLib = sp.web.lists.getByTitle(
-            stringsConstants.DigitalBadgeLibrary
-          );
+          let digitalLib = sp.web.lists.getByTitle(stringsConstants.DigitalBadgeLibrary);
+
+          //Add "Title" column to the default view
+          const defaultXML = await digitalLib.defaultView.fields.getSchemaXml();
+          let titleFieldIndex = defaultXML.indexOf("Title");
+          if (titleFieldIndex == -1) {
+            digitalLib.defaultView.fields.add("Title");
+          }
+
           if (digitalLib != undefined) {
+            //check whether the library is empty, if it is empty then load the sample badges
+            let listItems = await commonService.getAllListItems(stringsConstants.DigitalBadgeLibrary);
+            //check whether the "Tournament" lookup field exists
             digitalLib.fields.getByInternalNameOrTitle("Tournament").get()
-              .then(() => {
-                let imageContext;
-                listStructure.forEach(async (element) => {
-                  const masterDataDetails: string[] = element["masterData"];
-                  for (let k = 0; k < masterDataDetails.length; k++) {
-                    //check file exists before adding
-                    let fileExists = await sp.web.getFileByServerRelativeUrl("/" + this.state.inclusionpath + "/"
-                      + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary + "/" + masterDataDetails[k]['Name']).select('Exists').get()
-                      .then((d) => d.Exists)
-                      .catch(() => false);
-                    if (!fileExists) {
-                      //unable to resolve the dynamic path from siteconfig/dynamic var, hence the switch case
-                      switch (masterDataDetails[k]['Title']) {
-                        case "Shortcut Hero":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Shortcuts.png'));
-                          break;
-                        case "Always on Mute":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Mute.png'));
-                          break;
-                        case "Virtual Background":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Mess.png'));
-                          break;
-                        case "Jokester":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Jokes.png'));
-                          break;
-                        case "Double Booked":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Booked.png'));
-                          break;
-                      }
-                      //upload default badges
-                      imageContext.then(res => res.blob()).then((blob) => {
-                        sp.web.getFolderByServerRelativeUrl("/" + this.state.inclusionpath + "/"
-                          + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary).files.add(masterDataDetails[k]['Name'], blob, true)
-                          .then((res) => {
-                            res.file.getItem().then(item => {
-                              item.update({
-                                Title: masterDataDetails[k]['Title'],
-                                TournamentId: masterDataDetails[k]['TournamentName']
-                              });
-                            });
-                          });
-                      });
-                    }
-                  }//master data loop
-                });
-              }).catch(async () => {
-                //field doesn't exists, hence create it
-                await digitalLib.fields.addLookup("Tournament", resp.Id, "Title").then(() => {
+              .then(async () => {
+                if (listItems.length == 0) {
                   let imageContext;
                   listStructure.forEach(async (element) => {
                     const masterDataDetails: string[] = element["masterData"];
                     for (let k = 0; k < masterDataDetails.length; k++) {
-                      //unable to resolve the dynamic path from siteconfig, hence the switch case
-                      switch (masterDataDetails[k]['Title']) {
-                        case "Shortcut Hero":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Shortcuts.png'));
-                          break;
-                        case "Always on Mute":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Mute.png'));
-                          break;
-                        case "Virtual Background":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Mess.png'));
-                          break;
-                        case "Jokester":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Jokes.png'));
-                          break;
-                        case "Double Booked":
-                          imageContext = fetch(require('../assets/images/Photo_Frame_Booked.png'));
-                          break;
-                      }
-                      //upload default badges
-                      imageContext.then(res => res.blob()).then((blob) => {
-                        sp.web.getFolderByServerRelativeUrl("/" + this.state.inclusionpath + "/"
-                          + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary).files.add(masterDataDetails[k]['Name'], blob, true)
-                          .then((res) => {
-                            res.file.getItem().then(item => {
-                              item.update({
-                                Title: masterDataDetails[k]['Title'],
-                                TournamentId: masterDataDetails[k]['TournamentName']
+                      //check file exists before adding
+                      let fileExists = await sp.web.getFileByServerRelativeUrl("/" + this.state.inclusionpath + "/"
+                        + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary + "/" + masterDataDetails[k]['Name']).select('Exists').get()
+                        .then((d) => d.Exists)
+                        .catch(() => false);
+                      if (!fileExists) {
+                        //unable to resolve the dynamic path from siteconfig/dynamic var, hence the switch case
+                        switch (masterDataDetails[k]['Title']) {
+                          case "Shortcut Hero":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Shortcuts.png'));
+                            break;
+                          case "Always on Mute":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Mute.png'));
+                            break;
+                          case "Virtual Background":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Mess.png'));
+                            break;
+                          case "Jokester":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Jokes.png'));
+                            break;
+                          case "Double Booked":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Booked.png'));
+                            break;
+                        }
+                        //upload default badges
+                        imageContext.then(res => res.blob()).then((blob) => {
+                          sp.web.getFolderByServerRelativeUrl("/" + this.state.inclusionpath + "/"
+                            + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary).files.add(masterDataDetails[k]['Name'], blob, true)
+                            .then((res) => {
+                              res.file.getItem().then(item => {
+                                item.update({
+                                  Title: masterDataDetails[k]['Title'],
+                                  TournamentId: masterDataDetails[k]['TournamentName']
+                                });
                               });
                             });
-                          });
-                      });
+                        });
+                      }
                     }//master data loop
                   });
+                }
+              }).catch(async () => {
+                //field doesn't exists, hence create it
+                await digitalLib.fields.addLookup("Tournament", resp.Id, "Title").then(() => {
+                  //If library is empty, then add sample badges
+                  if (listItems.length == 0) {
+                    let imageContext;
+                    listStructure.forEach(async (element) => {
+                      const masterDataDetails: string[] = element["masterData"];
+                      for (let k = 0; k < masterDataDetails.length; k++) {
+                        //unable to resolve the dynamic path from siteconfig, hence the switch case
+                        switch (masterDataDetails[k]['Title']) {
+                          case "Shortcut Hero":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Shortcuts.png'));
+                            break;
+                          case "Always on Mute":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Mute.png'));
+                            break;
+                          case "Virtual Background":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Mess.png'));
+                            break;
+                          case "Jokester":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Jokes.png'));
+                            break;
+                          case "Double Booked":
+                            imageContext = fetch(require('../assets/images/Photo_Frame_Booked.png'));
+                            break;
+                        }
+                        //upload default badges
+                        imageContext.then(res => res.blob()).then((blob) => {
+                          sp.web.getFolderByServerRelativeUrl("/" + this.state.inclusionpath + "/"
+                            + this.state.siteName + "/" + stringsConstants.DigitalBadgeLibrary).files.add(masterDataDetails[k]['Name'], blob, true)
+                            .then((res) => {
+                              res.file.getItem().then(item => {
+                                item.update({
+                                  Title: masterDataDetails[k]['Title'],
+                                  TournamentId: masterDataDetails[k]['TournamentName']
+                                });
+                              });
+                            });
+                        });
+                      }//master data loop
+                    });
+                  }
                 });
                 await digitalLib.defaultView.fields.add("Tournament");
               });
@@ -289,8 +291,8 @@ class TOTLandingPage extends React.Component<
                     )}
                   </div>
                   <h5 className={styles.pageSubHeader}>{LocaleStrings.QuickLinksLabel}</h5>
-                  <Row className="mt-4">
-                    <Col sm={3} className={styles.imageLayout}>
+                  <Row xl={4} lg={4} md={4} sm={3} xs={2} className="mt-4">
+                    <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                       <Media
                         className={styles.cursor}
                         onClick={() =>
@@ -311,7 +313,7 @@ class TOTLandingPage extends React.Component<
                         </div>
                       </Media>
                     </Col>
-                    <Col sm={3} className={styles.imageLayout}>
+                    <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                       <Media
                         className={styles.cursor}
                         onClick={() =>
@@ -332,7 +334,7 @@ class TOTLandingPage extends React.Component<
                         </div>
                       </Media>
                     </Col>
-                    <Col sm={3} className={styles.imageLayout}>
+                    <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                       <Media
                         className={styles.cursor}
                         onClick={() => this.setState({ digitalBadge: !this.state.digitalBadge })}
@@ -357,8 +359,8 @@ class TOTLandingPage extends React.Component<
                   )}
 
                   {this.state.isAdmin && (
-                    <Row className="mt-4">
-                      <Col sm={3} className={styles.imageLayout}>
+                    <Row xl={4} lg={4} md={4} sm={3} xs={2} className="mt-4">
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media className={styles.cursor}>
                           <div className={styles.mb}>
                             <a
@@ -378,7 +380,7 @@ class TOTLandingPage extends React.Component<
                           </div>
                         </Media>
                       </Col>
-                      <Col sm={3} className={styles.imageLayout}>
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media
                           className={styles.cursor}
                           onClick={() =>
@@ -401,7 +403,7 @@ class TOTLandingPage extends React.Component<
                           </div>
                         </Media>
                       </Col>
-                      <Col sm={3} className={styles.imageLayout}>
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media
                           className={styles.cursor}
                           onClick={() =>
@@ -423,7 +425,7 @@ class TOTLandingPage extends React.Component<
                         </Media>
                       </Col>
 
-                      <Col sm={3} className={styles.imageLayout}>
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media className={styles.cursor}>
                           <div className={styles.mb}>
                             <a
@@ -441,7 +443,7 @@ class TOTLandingPage extends React.Component<
                           </div>
                         </Media>
                       </Col>
-                      <Col sm={3} className={styles.imageLayout}>
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media className={styles.cursor}>
                           <div className={styles.mb}>
                             <a
@@ -461,7 +463,7 @@ class TOTLandingPage extends React.Component<
                           </div>
                         </Media>
                       </Col>
-                      <Col sm={3} className={styles.imageLayout}>
+                      <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                         <Media
                           className={styles.cursor}
                           onClick={() =>

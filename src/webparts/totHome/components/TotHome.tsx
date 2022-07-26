@@ -61,7 +61,7 @@ export default class TotHome extends React.Component<ITotHomeProps, ITotHomeStat
 
 
   public componentDidMount() {
-    
+
     let givenName: any[] = this.props.context.pageContext.user.displayName.split(" ");
     if (givenName.length > 0) {
       this.setState({ firstName: givenName[0].replace(",", "") });
@@ -88,7 +88,7 @@ export default class TotHome extends React.Component<ITotHomeProps, ITotHomeStat
     });
   }
 
- //This function is called when Enable TOT image is clicked, to create a site and all required assets  
+  //This function is called when Enable TOT image is clicked, to create a site and all required assets  
   public enableAppSetup = () => {
     this.setState({ isShowLoader: true, setupMessage: LocaleStrings.ProvisioningSetupMessage, enableTOT: false });
     //Creating provisioning assets for the App
@@ -104,7 +104,7 @@ export default class TotHome extends React.Component<ITotHomeProps, ITotHomeStat
         }
       }
     }).catch((err) => {
-      this.setState({ showError: true, showSuccess: false, enableTOT: true, isShowLoader: false, setupMessage: LocaleStrings.ProvisioningErrorMessage  });
+      this.setState({ showError: true, showSuccess: false, enableTOT: true, isShowLoader: false, setupMessage: LocaleStrings.ProvisioningErrorMessage });
       console.error("PVSS_Home_enableAppSetup. \n ", err);
     });
   }
@@ -163,8 +163,8 @@ export default class TotHome extends React.Component<ITotHomeProps, ITotHomeStat
             {this.state.enableTOT && !this.state.showSuccess && (
               <div>
                 <div className={styles.grid}>
-                  <Row className="mt-4">
-                    <Col sm={3} className={styles.imageLayout}>
+                  <Row xl={4} lg={4} md={4} sm={3} xs={2} className="mt-4">
+                    <Col xl={3} lg={3} md={3} sm={4} xs={6} className={styles.imageLayout}>
                       <Media
                         className={styles.cursor}
                         onClick={() => this.enableAppSetup()}

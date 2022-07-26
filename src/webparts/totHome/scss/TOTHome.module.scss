@@ -1,4 +1,35 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.infoCallout {
+  width: 620px;
+  padding: 10px 24px 20px 24px;
+  max-width: 90%;
+  margin-top: 30px;
+
+  .infoCalloutTitle {
+    margin-bottom: 12px;
+    font-weight: bold;
+  }
+
+  .infoCalloutTitlebody {
+    margin-bottom: 12px;
+  }
+
+  .infoCalloutLink {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  a:hover,
+  .infoCalloutLink:hover {
+    color: rgb(98, 100, 167);
+  }
+
+  .infoCalloutLinkFont {
+    font-size: 16px;
+  }
+}
+
 .totHome {
   .container {
     height: 100%;
@@ -30,14 +61,33 @@
 
       }
 
-      .icon {
-        padding-right: 20px;
+      .headerTooltipHostStyles {
+        display: inline-block;
+        cursor: pointer;
       }
 
-      .fbIcon {
+      .iconArea {
+        padding-right: 20px;
+
+        .icon {
+          font-size: 20px;
+          color: #FFFFFF;
+          opacity: 1;
+          cursor: pointer;
+        }
+      }
+
+      .fbIconArea {
         padding-right: 32px;
         padding-left: 8px;
         padding-bottom: 6px;
+
+        .feedbackIcon {
+          font-size: 20px;
+          color: #FFFFFF;
+          opacity: 1;
+          cursor: pointer;
+        }
       }
     }
 
@@ -50,7 +100,7 @@
       background-size: cover;
       background-position: center center;
       padding-left: 200px;
-      padding-top: 6px;
+      display: flex;
 
       .totPageHeading {
         text-align: left;
@@ -58,6 +108,8 @@
         letter-spacing: 0px;
         color: #FFFFFF;
         opacity: 1;
+        margin-top: auto;
+        margin-bottom: auto;
       }
     }
 
@@ -181,6 +233,54 @@
 
       }
     }
+
+    //For Mobile View
+    @media screen and (max-width:375pt) {
+
+      .navbg {
+        padding: .5rem .5rem;
+
+        .white {
+
+          .clbHeaderLogo {
+            margin-left: 10px;
+            width: 28px;
+            height: 28px;
+          }
+
+          .clbHeading {
+            margin-left: 11px;
+            font: normal normal bold 15px/21px Segoe UI;
+          }
+        }
+
+        .iconArea {
+          margin-top: 7px;
+          padding-right: 15px;
+
+          .icon {
+            font-size: 16px;
+          }
+        }
+
+        .fbIconArea {
+          padding: 3px 3px 0 2px;
+
+          .feedbackIcon {
+            font-size: 16px;
+          }
+        }
+      }
+
+      .imgheader {
+        padding-left: 20px;
+        height: 45px;
+
+        .totPageHeading {
+          font: normal normal 400 21px/28px Segoe UI;
+        }
+      }
+    }
   }
 
   .load {
@@ -209,28 +309,28 @@
     }
   }
 
-   
-.background {
-  background-color: white;
-  border-color: white !important;
 
-  .errorMessage {
-    color: red;
-    font-weight: bolder;
-    margin-left: 3.5%;
-  }
+  .background {
+    background-color: white;
+    border-color: white !important;
 
-  .successMessage {
-    color: green;
-    font-weight: bolder;
-    margin-left: 3.5%;
-  }
+    .errorMessage {
+      color: red;
+      font-weight: bolder;
+      margin-left: 3.5%;
+    }
 
-  .setupMessage {
-    color: blue;
-    font-weight: lighter;
-    font-style: italic;
-    margin-left: 3.5%;
+    .successMessage {
+      color: green;
+      font-weight: bolder;
+      margin-left: 3.5%;
+    }
+
+    .setupMessage {
+      color: blue;
+      font-weight: lighter;
+      font-style: italic;
+      margin-left: 3.5%;
+    }
   }
-}
 }

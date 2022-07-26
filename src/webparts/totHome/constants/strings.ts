@@ -1,4 +1,5 @@
 export const SiteAppName = "Tournament Of Teams";
+export const MobileWidth = 568;
 
 //Lists
 export const AppConfiguration = "App Configuration";
@@ -24,6 +25,8 @@ export const HelpUrl = "https://aka.ms/m365ToTissues";
 export const FeedbackUrl = "https://aka.ms/m365ToTfeedback";
 export const M365TOT = "https://aka.ms/m365ToT";
 export const M365TOTApp = "https://aka.ms/m365ToTapp";
+
+export const MultiTournamentTemplateURL = "https://raw.githubusercontent.com/OfficeDev/microsoft-teams-apps-tournament-of-teams/main/src/webparts/totHome/assets/TournamentsTemplate/CreateMultipleTournaments-Template.xlsx";
 
 //Tournaments Status
 export const TournamentStatusNotStarted = "Not Started";
@@ -65,3 +68,14 @@ export const TotalParticipantsColumn = "Total_x0020_Participants";
 export const CompletedParticipantsColumn = "Completed_x0020_Participants";
 export const TotalPointsColumn = "Total_x0020_Points";
 export const TotalActivitiesColumn = "Total_x0020_Activities";
+
+//Import Tournaments Excel header names
+export const TournamentNameHeader = "TournamentName";
+export const DescriptionHeader = "Description";
+export const CategoryHeader = "Category";
+export const ActionHeader = "Action";
+export const ActionDescriptionHeader = "ActionDescription";
+export const PointsHeader = "Points";
+export const HelpURLHeader = "HelpURL";
+
+export const ImportTournamentLimit = 10; 

@@ -9,7 +9,9 @@
   "scripts": {
     "build": "gulp bundle",
     "clean": "gulp clean",
-    "test": "gulp test",
+    "update-loc": "gulp build && node ./jest-config/allowStringsInJest.js",
+    "pretest": "npm run update-loc",
+    "test": "jest",
     "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions"
   },
   "dependencies": {
@@ -20,16 +22,19 @@
     "@microsoft/sp-property-pane": "1.13.0",
     "@microsoft/sp-webpart-base": "1.13.0",
     "@pnp/sp": "^2.8.0",
-    "@pnp/spfx-controls-react": "^3.3.0",
+    "@pnp/sp-commonjs": "^2.13.0",
+    "@pnp/spfx-controls-react": "^3.9.0",
     "ansi-regex": "^4.1.1",
     "bootstrap": "^4.6.0",
-    "glob-parent": "^5.1.2",
+    "eventsource": "^2.0.2",
+    "glob-parent": "^6.0.1",
     "jquery": "^3.6.0",
     "minimist": "^1.2.6",
     "moment": "^2.29.2",
     "msteams-ui-components-react": "^0.5.0",
     "node-fetch": "^2.6.7",
     "node-forge": "^1.3.0",
+    "nth-check": "^2.1.1",
     "office-ui-fabric-react": "7.174.1",
     "popper.js": "^1.16.1",
     "react": "16.8.5",
@@ -41,16 +46,18 @@
     "react-dom": "16.8.5",
     "rx-lite": "^4.0.8",
     "tar": "^4.4.18",
+    "terser": "^5.14.2",
     "trim-newlines": "^3.0.1",
     "typescript": "^4.4.4",
     "typestyle": "1.5.1",
     "underscore": "^1.12.1",
-    "webpack": "^4.44.2"
+    "webpack": "^4.44.2",
+    "xlsx": "^0.18.5"
   },
   "resolutions": {
     "node-fetch": "2.6.7",
     "tar": "4.4.18",
-    "glob-parent": "5.1.2",
+    "glob-parent": "^6.0.1",
     "underscore": "1.12.1",
     "trim-newlines": "3.0.1",
     "node-forge": ">=1.3.0",
@@ -59,22 +66,78 @@
     "qs": ">=6.0.4",
     "fresh": ">=0.5.2",
     "async": ">=3.2.2",
-    "ansi-regex": "^4.1.1"
+    "ansi-regex": "^4.1.1",
+    "nth-check": "^2.1.1",
+    "eventsource": "^2.0.2",
+    "terser": "^5.14.2"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-3.9": "^0.4.48",
-    "@microsoft/sp-build-web": "^1.14.0",
+    "@microsoft/sp-build-web": "^1.15.0",
     "@microsoft/sp-module-interfaces": "1.13.0",
     "@microsoft/sp-tslint-rules": "1.13.0",
+    "@types/enzyme": "3.10.12",
+    "@types/enzyme-adapter-react-16": "1.0.6",
+    "@types/enzyme-to-json": "1.5.4",
+    "@types/jest": "27.5.0",
     "@types/jquery": "3.3.2",
     "@types/react": "16.8.8",
     "@types/react-bootstrap-table-next": "^4.0.17",
     "@types/react-bootstrap-table2-toolkit": "^2.1.6",
     "@types/react-dom": "16.8.3",
+    "@types/react-test-renderer": "18.0.0",
     "@types/rx-lite": "^4.0.6",
     "@types/webpack-env": "1.13.1",
     "ajv": "~5.2.2",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.6",
     "gulp": "~4.0.2",
+    "identity-obj-proxy": "3.0.0",
+    "jest": "26.6.3",
+    "jest-junit": "13.2.0",
+    "react-test-renderer": "18.1.0",
+    "spfx-ut-library": "0.0.4",
+    "ts-jest": "26.5.5",
     "url-loader": "^4.1.1"
+  },
+  "jest": {
+    "verbose": true,
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/src/**/*.test.+(ts|tsx|js)"
+    ],
+    "coverageDirectory": "<rootDir>/jest",
+    "collectCoverage": true,
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "@microsoft/sp-webpart-base": "identity-obj-proxy",
+      "@microsoft/sp-http": "identity-obj-proxy",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/jest-config/file-mock.js",
+      "office-ui-fabric-react/lib/(.*)$": "office-ui-fabric-react/lib-commonjs/$1",
+      "@fluentui/react/lib/(.*)$": "@fluentui/react/lib-commonjs/$1",
+      "@pnp/sp$": "@pnp/sp-commonjs",
+      "@pnp/sp/(.*)$": "@pnp/sp-commonjs/$1"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest-config/jest-setup.ts"
+    ],
+    "reporters": [
+      [
+        "jest-junit",
+        {
+          "suiteName": "TOT Unit Tests",
+          "outputDirectory": "./reports/",
+          "outputName": "./junit.xml"
+        }
+      ]
+    ]
   }
 }

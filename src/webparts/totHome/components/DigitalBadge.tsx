@@ -1,51 +1,40 @@
-import * as React from "react";
+import { Icon } from '@fluentui/react/lib/Icon';
+import { List } from '@fluentui/react/lib/List';
+import { IRectangle } from '@fluentui/react/lib/Utilities';
+import { MSGraphClient, SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 import * as microsoftTeams from "@microsoft/teams-js";
-import { MSGraphClient } from "@microsoft/sp-http";
+import { initializeIcons } from "@uifabric/icons";
+import $ from "jquery";
 import {
-  TeamsComponentContext,
   ConnectedComponent,
   Panel,
-  PanelBody,
-  PanelHeader,
-  PanelFooter,
-  Surface,
-  ThemeStyle,
+  PanelBody, PanelFooter, PanelHeader, Surface, TeamsComponentContext, ThemeStyle
 } from "msteams-ui-components-react";
 import {
-  getContext,
-  primaryButton,
-  anchor,
-  compoundButton,
+  anchor, getContext,
+  primaryButton
 } from "msteams-ui-styles-core";
 import {
-  PrimaryButton,
-  CompoundButton,
+  PrimaryButton
 } from "office-ui-fabric-react/lib/Button";
-import { initializeIcons } from "@uifabric/icons";
-import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import {
-  TeamsBaseComponent,
-  ITeamsBaseComponentProps,
-  ITeamsBaseComponentState,
-} from "./TeamsBaseComponent";
 import {
   MessageBar,
-  MessageBarType,
+  MessageBarType
 } from "office-ui-fabric-react/lib/MessageBar";
-import $ from "jquery";
-import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { Icon } from '@fluentui/react/lib/Icon';
-import { mergeStyleSets } from '@fluentui/react/lib/Styling';
-import { List } from '@fluentui/react/lib/List';
-import { Label } from "@microsoft/office-ui-fabric-react-bundle";
-import siteconfig from "../provisioning/ProvisioningAssets.json";
-import commonServices from '../common/CommonServices';
+import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
+import * as React from "react";
 import * as LocaleStrings from 'TotHomeWebPartStrings';
-import * as strings from "../constants/strings";
 import "../assets/stylesheets/DigitalBadgeProfile.scss";
-import dbStyles from "../scss/TOTDigitalBadge.module.scss";
+import commonServices from '../common/CommonServices';
+import * as strings from "../constants/strings";
 import IProfileImage from "../models/IProfileImage";
+import siteconfig from "../provisioning/ProvisioningAssets.json";
+import dbStyles from "../scss/TOTDigitalBadge.module.scss";
+import {
+  ITeamsBaseComponentProps,
+  ITeamsBaseComponentState, TeamsBaseComponent
+} from "./TeamsBaseComponent";
 
 const config = {
   baseFontSize: 16,
@@ -56,89 +45,6 @@ const graphUrl = "https://graph.microsoft.com";
 const graphMyPhotoApiUrl = graphUrl + "/v1.0/me/photo";
 const graphMyPhotoBitsUrl = graphMyPhotoApiUrl + "/$value";
 let upn: string | undefined = "";
-
-//CSS classes for Image List
-const classNames = mergeStyleSets({
-  listGrid: {
-    width: '100%',
-    overflow: 'hidden',
-    fontSize: 0,
-    position: 'relative',
-    margin: 'auto auto auto auto'
-  },
-  listGridTile: {
-    width: '25%',
-    marginBottom: '3%',
-    textAlign: 'center',
-    outline: 'none',
-    position: 'relative',
-    float: 'left',
-    selectors: {
-      'focus:after': {
-        content: '',
-        position: 'absolute',
-        left: 2,
-        right: 2,
-        top: 2,
-        bottom: 2,
-        boxSizing: 'border-box',
-      },
-    },
-  },
-  listGridSizer: {
-    paddingBottom: '180px',
-  },
-  listGridPadder: {
-    position: 'absolute',
-    align: 'center',
-    left: 2,
-    top: 2,
-    right: 2,
-    bottom: 2,
-    marginRight: '10%',
-    marginBottom: '5%'
-  },
-  listGridLabel: {
-    background: '#464775',
-    color: '#FFFFFF',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    height: '28px',
-    boxSizing: 'border-box',
-    font: "normal normal bold 16px/21px Segoe UI",
-    padding: "3px 3px 3px 1px",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    cursor: "pointer",
-    whiteSpace: "nowrap"
-  },
-  listGridImage: {
-    position: 'absolute',
-    top: '15%',
-    left: 0,
-    width: '70%',
-    marginLeft: "15%"
-  },
-  acceptIcon: {
-    marginRight: "10px",
-    fontSize: "16px",
-    fontWeight: "bolder",
-    color: "#FFFFFF",
-    opacity: 1
-  },
-  downloadIcon: {
-    fontSize: "16px",
-    fontWeight: "bolder",
-    opacity: 1
-  },
-  profileImage: {
-    display: "block",
-    margin: "0 auto",
-    borderRadius: "50%"
-  }
-});
 
 export interface IDigitalBadgeState extends ITeamsBaseComponentState {
   entityId?: string;
@@ -176,8 +82,16 @@ export default class DigitalBadge extends TeamsBaseComponent<
   IDigitalBadgeProps,
   IDigitalBadgeState
 > {
+
+  private columnCount = 0;
+  private rowHeight = 0;
+  private ROWS_PER_PAGE = 3;
+  private MAX_ROW_HEIGHT = 300;
+  private commonServiceManager: commonServices;
+
   constructor(props: IDigitalBadgeProps, states: IDigitalBadgeState) {
     super(props, states);
+    this.commonServiceManager = new commonServices(this.props.context, this.props.siteUrl);
     this._onDownloadImage = this._onDownloadImage.bind(this);
     this.onUserAcceptance = this.onUserAcceptance.bind(this);
     this.onBadgeSelected = this.onBadgeSelected.bind(this);
@@ -185,6 +99,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
     this.getPhotoBits = this.getPhotoBits.bind(this);
     this.getAllBadgeImages = this.getAllBadgeImages.bind(this);
     this.onRenderCell = this.onRenderCell.bind(this);
+    this.getItemCountForPageService = this.getItemCountForPageService.bind(this);
   }
   private _requestOptions: {} = {
     headers: {
@@ -225,72 +140,66 @@ export default class DigitalBadge extends TeamsBaseComponent<
 
   }
 
+  //Method to get how many items to render per page from specified index
+  private getItemCountForPageService = (itemIndex?: number, visibleRect?: IRectangle): number => {
+    let serviceObj = this.commonServiceManager.getItemCountForPage(itemIndex, visibleRect, this.MAX_ROW_HEIGHT, this.ROWS_PER_PAGE);
+    this.columnCount = serviceObj.columnCount;
+    this.rowHeight = serviceObj.rowHeight;
+    return serviceObj.itemCountForPage;
+  }
+
   //Multiple Badges   
   //Render Fluent UI list cell to show the images and hyperlinks
-  private onRenderCell(item: any, index: number | undefined) {
+  private onRenderCell = (item: any, index: number | undefined) => {
     try {
       return (
         <div
-          className={classNames.listGridTile}
+          className={dbStyles.listGridTile}
           data-is-focusable
+          style={{
+            width: 100 / this.columnCount + '%',
+          }}
         >
-          <div className={classNames.listGridSizer}>
-            <div className={classNames.listGridPadder}>
+          <div className={dbStyles.listGridSizer}>
+            <div className={dbStyles.listGridPadder}>
               <a href="#" onClick={() => { this.onBadgeSelected(item.url); }}>
                 {this.state.profileImage.url &&
                   this.state.profileImage.url !==
                   "../assets/images/noimage.png" && (
-                    <div
-                      style={{ maxWidth: "700px" }}
-                    >
+                    <>
                       <img
-                        style={{
-                          width: `120px`,
-                        }}
                         src={this.state.profileImage.url}
-                        className={classNames.profileImage}
                         alt={LocaleStrings.ProfileImageAlt}
+                        className={dbStyles.listGridImage}
                       />
                       <img
-                        style={{
-                          width: `120px`,
-                          marginTop: `-120px`,
-                        }}
-                        className={classNames.profileImage}
                         alt={LocaleStrings.BadgeImageAlt}
                         src={item.url}
+                        className={dbStyles.listGridImage}
                       />
-                    </div>
+                      <span className={dbStyles.listGridLabel} title={this.state.userletters}>{this.state.userletters}</span>
+                      <span onClick={() => { this.onBadgeSelected(item.url); }} className={dbStyles.listGridLabel} title={item.title}>{item.title}</span>
+                    </>
                   )}
                 {this.state.profileImage.url &&
                   this.state.profileImage.url ===
                   "../assets/images/noimage.png" && (
-                    <div
-
-                      style={{ maxWidth: "700px" }}
-                    >
+                    <>
                       <img
                         src={require("../assets/images/noimage.png")}
-                        style={{ width: `120px` }}
-                        className={classNames.profileImage}
+                        className={dbStyles.listGridImage}
                         alt={LocaleStrings.ProfileImageAlt}
                       />
-
-
                       <img
-                        style={{
-                          width: `120px`,
-                          marginTop: `-120px`,
-                        }}
-                        className={classNames.profileImage}
+                        className={dbStyles.listGridImage}
                         alt={LocaleStrings.BadgeImageAlt}
                         src={item.url}
                       />
-                    </div>
+                      <span className={dbStyles.listGridLabel} title={this.state.userletters}>{this.state.userletters}</span>
+                      <span onClick={() => { this.onBadgeSelected(item.url); }} className={dbStyles.listGridLabel} title={item.title}>{item.title}</span>
+                    </>
                   )}
               </a>
-              <span className={classNames.listGridLabel} title={this.state.userletters}>{this.state.userletters}</span>
-              <span onClick={() => { this.onBadgeSelected(item.url); }} className={classNames.listGridLabel} title={item.title}>{item.title}</span>
             </div>
           </div>
         </div>
@@ -304,7 +213,6 @@ export default class DigitalBadge extends TeamsBaseComponent<
         isLoading: false
       });
     }
-
   }
 
   //On a badge selection set the state and show the overlay images
@@ -440,7 +348,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
 
                 return (
                   <Surface>
-                    <Panel>
+                    <Panel className={dbStyles.panelArea}>
                       <PanelHeader>
                         <div className={dbStyles.digitalBadgePath}>
                           <img src={require("../assets/TOTImages/BackIcon.png")}
@@ -458,7 +366,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
                           <span className={dbStyles.digitalBadgeLabel}>{LocaleStrings.DigitalBadgePageTitle}</span>
                         </div>
                       </PanelHeader>
-                      <PanelBody>
+                      <PanelBody className={dbStyles.dbPanelBody}>
                         <div className={"DigitalBadge"} style={styles.section}>
                           <div className={`container`}>
                             {this.state.isLoading && (
@@ -479,10 +387,9 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                 >
                                   {!this.state.hasAccepted && (
                                     <div className={dbStyles.divChild1}>
-                                      <span className={dbStyles.imgText}>
+                                      <div className={dbStyles.imgText}>
                                         {LocaleStrings.PreAcceptPageTitle}
-                                      </span>
-                                      <br /> <br />
+                                      </div>
                                       <img
                                         src={require("../assets/TOTImages/AppBanner.png")}
                                         className={"bannerimage"}
@@ -543,10 +450,11 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                       />
                                     )}
                                     <List
-                                      className={classNames.listGrid}
+                                      className={dbStyles.listGrid}
                                       items={this.state.allBadgeImages}
-                                      renderedWindowsAhead={6}
-                                      onRenderCell={this.onRenderCell}
+                                      getItemCountForPage={this.getItemCountForPageService}
+                                      getPageHeight={() => this.commonServiceManager.getPageHeight(this.rowHeight, this.ROWS_PER_PAGE)}
+                                      onRenderCell={this.onRenderCell.bind(this)}
                                     />
                                   </div>
                                 )}
@@ -650,7 +558,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                             }
                                             title={LocaleStrings.ApplyButton}
                                           >
-                                            <Icon iconName="Completed" className={`${classNames.acceptIcon}`} />
+                                            <Icon iconName="Completed" className={dbStyles.acceptIcon} />
                                             {LocaleStrings.ApplyButtonText}
                                           </PrimaryButton>
                                           <br />
@@ -659,8 +567,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                               <div className={dbStyles.downloadArea}>
                                                 <PrimaryButton
                                                   iconProps={{
-                                                    iconName: "Download",
-                                                    className: classNames.downloadIcon
+                                                    iconName: "Download"
                                                   }}
                                                   className={`${primaryButton(contextCSS)} ${dbStyles.downloadBtn}`}
                                                   title={this.state.imageDownloaded
@@ -728,7 +635,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                     {!this.state.hasAccepted &&
                                       this.state.showAccept && (
                                         <PrimaryButton
-                                          className={primaryButton(contextCSS)}
+                                          className={primaryButton(contextCSS) + " " + dbStyles.acceptBtn}
                                           onClick={this.onUserAcceptance}
                                           ariaLabel={LocaleStrings.AcceptButtonText}
                                           ariaDescription={
@@ -736,7 +643,7 @@ export default class DigitalBadge extends TeamsBaseComponent<
                                           }
                                           title={LocaleStrings.AcceptButtonText}
                                         >
-                                          <Icon iconName="Completed" className={`${classNames.acceptIcon}`} />
+                                          <Icon iconName="Completed" className={dbStyles.acceptIcon} />
                                           {LocaleStrings.AcceptButtonText}
                                         </PrimaryButton>
                                       )}

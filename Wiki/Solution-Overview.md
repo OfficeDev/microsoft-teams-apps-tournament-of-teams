@@ -31,23 +31,40 @@ Below are the master lists in SharePoint that need to be managed by the TOT Admi
 
 1. "Actions List" - Sample actions are loaded by default. TOT Admins can add additional actions in the same format as sample data.
 2. "TOT Admins" - TOT Admins can add additional admins to this list.
-3. "Digital Badge Assets" - Sample badges are loaded to this library by default and tagged to sample tournaments. Admins can upload new digital badges to be available to all users. Admins also can load additional badges and map it to specific tournaments in this list. The tournament specific badges will show up only to the users who have completed that specific tournament.
+3. "Digital Badge Assets" - Sample badges are loaded to this library by default and tagged to sample tournaments. Admins also can load additional badges and map it to specific tournaments in this list. The tournament specific badges will show up only to the users who have completed that specific tournament.
 
 
 ### Create Tournament
 
 - Admins can create new tournaments by picking the Teams Actions from the list. New Teams Actions need to be added to the “Actions List” in SharePoint. 
 
+![Quick Start Guide](../Images/CreateTournament.png) 
+
+- Multiple tournaments can also be created by uploading a spreadsheet with tournament details. The sample spread sheet can be downloaded by the users.
+
+![Quick Start Guide](../Images/MultipleTournaments.png) 
+
+- Below are the guidelines that need to be followed while creating multiple tournaments using excel template:
+
+    - Do not modify the column headers in the template
+    - Do not delete the columns in the template
+    - Enter data in all the required(*) columns mentioned in the template
+    - Follow the character limit and type mentioned in the template for each column
+    - Enter data for only 1 tournament in each sheet as per the sample data provided
+    - Only 10 tournaments can be created at a time
+    - Ensure the Tournament Name is unique
+
+
 - Created Tournaments are not started by default. Admin can start the tournament from "Manage Tournaments" screen.
 
-    ![Quick Start Guide](../Images/CreateTournament.png) 
-
-
+    
 ### Manage Tournaments 
 
  - A tournament can be started or completed by an admin using “Manage Tournaments” screen. 
 
  - Multiple tournaments can be active at a time. 
+
+ - Multiple tournaments can be started at a time
 
     ![Quick Start Guide](../Images/ManageTournament.png) 
 
