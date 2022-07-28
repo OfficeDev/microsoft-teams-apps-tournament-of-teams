@@ -214,7 +214,7 @@ export default class ProvisioningHelper {
       }
     });
   }
-  // Create PVSS site if not exists
+  // Create the site if not exists
   private async createSite(): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
       try {
@@ -223,10 +223,10 @@ export default class ProvisioningHelper {
           spfxContext: this.spcontext
         });
         console.log(Constants.ProvisioningLog, "Checking if site exists already. ");
-        //Check if PVSS site exists
+        //Check if the site exists
         await sp.site.exists(rootSiteURL).then(async (response) => {
           if (response != undefined) {
-            //If PVSS site does not exist, create the site
+            //If the site does not exist, create it
             if (!response) {
               console.log(Constants.ProvisioningLog, "Creating new site. ", rootSiteURL);
               const createSiteUrl: string = "/_api/SPSiteManager/create";
@@ -267,7 +267,7 @@ export default class ProvisioningHelper {
                   reject("Failed");
                 });
             }
-            //If PVSS site already exists create only lists. 
+            //If the site already exists, create only lists. 
             else {
               console.log(Constants.ProvisioningLog, "Site already exists. ");
               resolve("Success");

@@ -4,9 +4,8 @@ import styles from "../scss/TOTHome.module.scss";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
-import { mergeStyleSets } from '@fluentui/react/lib/Styling';
-import { TooltipHost, ITooltipHostStyles } from '@fluentui/react/lib/Tooltip';
-import { Callout, Link, Text, FontWeights } from 'office-ui-fabric-react';
+import { DirectionalHint, TooltipHost } from '@fluentui/react/lib/Tooltip';
+import { Callout, Link, Text } from 'office-ui-fabric-react';
 import * as Strings from '../constants/strings';
 import * as LocaleStrings from 'TotHomeWebPartStrings';
 
@@ -14,56 +13,11 @@ import * as LocaleStrings from 'TotHomeWebPartStrings';
 const packageSolution: any = require("../../../../config/package-solution.json");
 const calloutProps = { gapSpace: 0 };
 
-const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block', cursor: 'pointer' } };
-
-const classes = mergeStyleSets({
-  Icon: {
-    fontSize: '20px',
-    color: '#FFFFFF',
-    opacity: 1,
-    cursor: 'pointer'
-  },
-  feedbackIcon: {
-    fontSize: '20px',
-    color: '#FFFFFF',
-    opacity: 1,
-    cursor: 'pointer'
-  }
-});
-const style = mergeStyleSets({
-  button: {
-    width: 130,
-  },
-  callout: {
-    width: 620,
-    padding: '10px 24px 20px 24px'
-  },
-  title: {
-    marginBottom: 12,
-    fontWeight: FontWeights.bold,
-  },
-  titlebody: {
-    marginBottom: 12,
-  },
-  titlelink: {
-    fontWeight: FontWeights.bold,
-    color: "#6264A7"
-  },
-  link: {
-    display: 'block',
-    marginBottom: 12,
-  },
-  linkFont: {
-    fontSize: "16px"
-  }
-});
-
 interface IHeaderProps {
   clickcallback: () => void; //will redirects to home
 }
 interface HeaderState {
   isCalloutVisible: boolean;
-
 }
 export default class Header extends Component<IHeaderProps, HeaderState> {
   constructor(_props: any) {
@@ -96,64 +50,64 @@ export default class Header extends Component<IHeaderProps, HeaderState> {
           <span onClick={this.homeRedirect} className={styles.clbHeading} title={LocaleStrings.AppLogoToolTip}>{LocaleStrings.AppHeaderTitleLabel}</span>
         </Navbar.Brand>
         <Nav.Item style={{ marginLeft: "auto", marginRight: "1%" }}>
-          <div className={styles.icon}>
+          <div className={styles.iconArea}>
             <TooltipHost
               content={LocaleStrings.MoreInfoToolTip}
               delay={2}
               calloutProps={calloutProps}
-              styles={hostStyles}
+              hostClassName={styles.headerTooltipHostStyles}
             >
-              <Icon className={classes.Icon} id={buttonId} iconName="Info" onClick={this.toggleIsCalloutVisible} />
+              <Icon className={styles.icon} id={buttonId} iconName="Info" onClick={this.toggleIsCalloutVisible} />
             </TooltipHost>
             {this.state.isCalloutVisible && (
               <Callout
-                className={style.callout}
+                className={styles.infoCallout}
                 ariaLabelledBy={labelId}
                 ariaDescribedBy={descriptionId}
                 gapSpace={20}
                 target={`#${buttonId}`}
                 onDismiss={this.toggleIsCalloutVisible}
                 setInitialFocus
-                directionalHint={3}
+                directionalHint={DirectionalHint.bottomCenter}
               >
-                <Text block variant="xLarge" className={style.title}>
-                {LocaleStrings.AboutHeaderLabel}
+                <Text block variant="xLarge" className={styles.infoCalloutTitle}>
+                  {LocaleStrings.AboutHeaderLabel}
                 </Text>
-                <Text block variant="small" className={style.titlebody}>
-                {LocaleStrings.AboutContentLabel}
+                <Text block variant="small" className={styles.infoCalloutTitlebody}>
+                  {LocaleStrings.AboutContentLabel}
                 </Text>
-                <Text block variant="xLarge" className={style.title}>
-                {LocaleStrings.AdditionalResourcesHeaderLabel}
+                <Text block variant="xLarge" className={styles.infoCalloutTitle}>
+                  {LocaleStrings.AdditionalResourcesHeaderLabel}
                 </Text>
-                <Text block variant="small" className={style.titlebody}>
-                {LocaleStrings.AdditionalResourcesContentLabel}
+                <Text block variant="small" className={styles.infoCalloutTitlebody}>
+                  {LocaleStrings.AdditionalResourcesContentLabel}
                 </Text>
-                <Link href={Strings.M365Champions} target="_blank" className={`${style.link} ${style.linkFont}`}>
-                {LocaleStrings.M365ChampionCommunityLinkLabel}
+                <Link href={Strings.M365Champions} target="_blank" className={`${styles.infoCalloutLink} ${styles.infoCalloutLinkFont}`}>
+                  {LocaleStrings.M365ChampionCommunityLinkLabel}
                 </Link>
-                <Link href={Strings.DrivingAdoption} target="_blank" className={`${style.link} ${style.linkFont}`}>
-                {LocaleStrings.DrivingAdoptionLinkLabel}
+                <Link href={Strings.DrivingAdoption} target="_blank" className={`${styles.infoCalloutLink} ${styles.infoCalloutLinkFont}`}>
+                  {LocaleStrings.DrivingAdoptionLinkLabel}
                 </Link>
-                <Text block variant="xLarge" className={style.title}>
+                <Text block variant="xLarge" className={styles.infoCalloutTitle}>
                   ----
                 </Text>
                 <Text block variant="small">
-                {LocaleStrings.CurrentVersionLabel} {packageSolution.solution.version}
+                  {LocaleStrings.CurrentVersionLabel} {packageSolution.solution.version}
                 </Text>
                 <Text block variant="small">
-                {LocaleStrings.LatestVersionLabel} <Link href={Strings.LatestVersion} target="_blank">{LocaleStrings.TOTGitHubLinkLabel}</Link>
+                  {LocaleStrings.LatestVersionLabel} <Link href={Strings.LatestVersion} target="_blank">{LocaleStrings.TOTGitHubLinkLabel}</Link>
                 </Text>
-                <Text block variant="xLarge" className={style.title}>
+                <Text block variant="xLarge" className={styles.infoCalloutTitle}>
                   ----
                 </Text>
                 <Text block variant="small">
-                {LocaleStrings.VisitLabel}
+                  {LocaleStrings.VisitLabel}
                 </Text>
                 <Text block variant="small">
-                {LocaleStrings.OverviewLabel} <Link href={Strings.M365TOT} target="_blank">{LocaleStrings.MSAdoptionHubLinkLabel}</Link>
+                  {LocaleStrings.OverviewLabel} <Link href={Strings.M365TOT} target="_blank">{LocaleStrings.MSAdoptionHubLinkLabel}</Link>
                 </Text>
                 <Text block variant="small">
-                {LocaleStrings.DocumentationLabel} <Link href={Strings.M365TOTApp} target="_blank">{LocaleStrings.TOTGitHubLinkLabel}</Link>
+                  {LocaleStrings.DocumentationLabel} <Link href={Strings.M365TOTApp} target="_blank">{LocaleStrings.TOTGitHubLinkLabel}</Link>
                 </Text>
               </Callout>
             )}
@@ -161,29 +115,29 @@ export default class Header extends Component<IHeaderProps, HeaderState> {
 
         </Nav.Item>
         <Nav.Item>
-          <div className={styles.icon}>
+          <div className={styles.iconArea}>
             <a href={Strings.HelpUrl} target="_blank">
               <TooltipHost
                 content={LocaleStrings.SupportToolTip}
                 delay={2}
                 calloutProps={calloutProps}
-                styles={hostStyles}
+                hostClassName={styles.headerTooltipHostStyles}
               >
-                <Icon aria-label="Unknown" iconName="Unknown" className={classes.Icon} />
+                <Icon aria-label="Unknown" iconName="Unknown" className={styles.icon} />
               </TooltipHost>
             </a>
           </div>
         </Nav.Item>
         <Nav.Item>
-          <div className={styles.fbIcon}>
+          <div className={styles.fbIconArea}>
             <a href={Strings.FeedbackUrl} target="_blank">
               <TooltipHost
                 content={LocaleStrings.FeedbackToolTip}
                 delay={2}
                 calloutProps={calloutProps}
-                styles={hostStyles}
+                hostClassName={styles.headerTooltipHostStyles}
               >
-                <Icon aria-label="Feedback" iconName="Feedback" className={classes.feedbackIcon} />
+                <Icon aria-label="Feedback" iconName="Feedback" className={styles.feedbackIcon} />
               </TooltipHost>
             </a>
           </div>

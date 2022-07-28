@@ -4,11 +4,8 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import siteconfig from "../provisioning/ProvisioningAssets.json";
 import * as stringsConstants from "../constants/strings";
+import { IRectangle } from '@fluentui/react/lib/Utilities';
 
-
-interface ICommonServicesState {
-
-}
 let rootSiteURL: string;
 export default class CommonServices {
 
@@ -31,6 +28,22 @@ export default class CommonServices {
     });
   }
 
+  //Method to get the pixel height for a given page
+  public getPageHeight = (rowHeight: number, ROWS_PER_PAGE: number): number => {
+    return rowHeight * ROWS_PER_PAGE;
+  }
+
+  //Method to get how many items to render per page from specified index
+  public getItemCountForPage = (itemIndex: number, surfaceRect: IRectangle, MAX_ROW_HEIGHT: number, ROWS_PER_PAGE: number) => {
+    let columnCount: number;
+    let rowHeight: number;
+    if (itemIndex === 0) {
+      columnCount = Math.ceil(surfaceRect.width / MAX_ROW_HEIGHT);
+      rowHeight = Math.floor(surfaceRect.width / columnCount);
+    }
+    return { itemCountForPage: columnCount * ROWS_PER_PAGE, columnCount: columnCount, rowHeight: rowHeight };
+  }
+
   //Get list items based on only a filter
   public async getItemsWithOnlyFilter(listname: string, filterparametres: any): Promise<any> {
     var items: any[] = [];
@@ -44,7 +57,7 @@ export default class CommonServices {
     items = await sp.web.lists.getByTitle(listname).items.filter(filterparametres).orderBy(descColumn, false)();
     return items;
   }
-  
+
   //Get all items from a list
   public async getAllListItems(listname: string): Promise<any> {
     var items: any[] = [];
@@ -103,9 +116,37 @@ export default class CommonServices {
     return true;
   }
   //Update list item
-  public updateListItem(listName: string, data: any, id: string): Promise<any> {
+  public updateListItem(listName: string, data: any, id: any): Promise<any> {
     return sp.web.lists.getByTitle(listName).items.getById(parseInt(id)).update(data).then(i => {
       return true;
+    });
+  }
+
+  //Update multiple items
+  public async updateMultipleItems(listname: string, data: any, arrayOfIds: any): Promise<any> {
+    return new Promise<any>(async (resolve, reject) => {
+
+      try {
+        //Create object for batch
+        const batch = sp.web.createBatch();
+        //Get list context
+        const list = await sp.web.lists.getByTitle(listname);
+        const items = list.items.inBatch(batch);
+
+        for (let i = 0; i < arrayOfIds.length; i++) {
+          items.getById(parseInt(arrayOfIds[i])).inBatch(batch).update(data);
+        }
+        await batch.execute().then(() => {
+          resolve(true);
+        }).catch((error) => {
+          console.error("CommonServices_updateMultipleItems \n", error);
+          reject(false);
+        });
+      }
+      catch (error) {
+        console.error("CommonServices_updateMultipleItems \n", error);
+        reject(false);
+      }
     });
   }
   //create fields in SP lists
@@ -149,28 +190,30 @@ export default class CommonServices {
   }
 
 
-  //Filter and get all badge imagesfrom 'Digital Badges' library for the current user
+  //Filter and get all badge images from 'Digital Badges' library for the current user
   public async getAllBadgeImages(listName: string, userEmail: string): Promise<any> {
-    var badgeImagesArray: any[] = [];
-    var finalImagesArray: any[] = [];
+    try {
+      var badgeImagesArray: any[] = [];
+      var finalImagesArray: any[] = [];
 
-    // Get all the badges and filter for completed tournaments
+      // Get all the badges and filter for completed tournaments
+      badgeImagesArray = await sp.web.lists.getByTitle(stringsConstants.DigitalBadgeLibrary).items.select("Title", "Tournament/Title", "File/Name").expand("Tournament", "File").filter("Tournament/Title ne null").get();
 
-    badgeImagesArray = await sp.web.lists.getByTitle(stringsConstants.DigitalBadgeLibrary).items.select("Title", "Tournament/Title", "File/Name").expand("Tournament", "File").get();
+      //Loop through badges and filter based on user's tournaments completion status
+      for (let i = 0; i < badgeImagesArray.length; i++) {
 
-
-    //Loop through badges and filter based on user's tournaments completion status
-    for (let i = 0; i < badgeImagesArray.length; i++) {
-
-      var tournamentCompleted = await this.getTournamentCompletedFlag(badgeImagesArray[i].Tournament.Title, userEmail);
-      if (tournamentCompleted)
-        finalImagesArray.push({
-          title: badgeImagesArray[i].Title,
-          url: rootSiteURL + "/" + listName + "/" + badgeImagesArray[i].File.Name
-        });
+        var tournamentCompleted = await this.getTournamentCompletedFlag(badgeImagesArray[i].Tournament.Title, userEmail);
+        if (tournamentCompleted)
+          finalImagesArray.push({
+            title: badgeImagesArray[i].Title,
+            url: rootSiteURL + "/" + listName + "/" + badgeImagesArray[i].File.Name
+          });
+      }
+      return finalImagesArray;
     }
-
-    return finalImagesArray;
+    catch (error) {
+      console.error("CommonServices_getAllBadgeImages \n", error);
+    }
   }
 
   //Check if the user has completed the tournament

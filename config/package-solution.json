@@ -3,7 +3,7 @@
   "solution": {
     "name": "tournamentofteams",
     "id": "3d3e953b-57ef-4693-a25b-d5e814cb950a",
-    "version": "1.0.0.0",
+    "version": "1.1.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
